@@ -27,6 +27,7 @@ public class StoreApp {
                 Пиши \'add\' что бы добавить товар в корзину
                 Пиши \'discount\' что бы применить скидку
                 Пиши \'list\' что бы показать корзину
+                Пиши \'promo\' что использовать промокод
                 Пиши \'exit\' что бы выйти
                 """);
                 String choice = scanner.nextLine();
@@ -43,6 +44,11 @@ public class StoreApp {
                         System.out.print("Введите процент скидки: ");
                         double percent = Double.parseDouble(scanner.nextLine());
                         store.applyDiscount(percent);
+                    }
+                    case PROMO -> {
+                        System.out.println("Введите промокод");
+                        String percent = scanner.nextLine();
+                        store.applyPromoCode(percent);
                     }
                     case Commands.LIST -> store.printCart();
                     case Commands.EXIT -> running = false;

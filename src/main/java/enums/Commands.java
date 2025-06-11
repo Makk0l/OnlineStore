@@ -5,5 +5,6 @@ public enum Commands {
     ADD,
     DISCOUNT,
     LIST,
-    EXIT
+    EXIT,
+    PROMO
 }
