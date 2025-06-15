@@ -6,8 +6,9 @@ import java.util.Map;
 
 public class Cart {
     private final List<CartItem> items = new ArrayList<>();
-    private double discountPercent = 0.0;
-    private boolean promo = false;
+    private PromoCode appliedCode;
+    private boolean isDiscount = false;
+    private boolean isPromoCodeApplied = false;
 
 
     public void addItem(Product product, int quantity) {
@@ -27,21 +28,21 @@ public class Cart {
         return items;
     }
 
-    public void applyPromo(double percent) {
-        this.discountPercent = Math.min(percent, 100);
-        this.promo = true;
+    public void applyPromo(PromoCode appliedCode) {
+        isPromoCodeApplied = true;
+        isDiscount = true;
+        this.appliedCode = appliedCode;
+    }
+
+    public boolean isDiscount() {
+        return isDiscount;
+    }
+
+    public boolean isPromoCodeApplied() {
+        return isPromoCodeApplied;
     }
 
     public double getDiscountPercent() {
-        return discountPercent;
-    }
-
-    public void setDiscount(double percent) {
-        if (!promo) {
-            this.discountPercent = Math.min(percent, 100);
-        }
-        else {
-            System.out.println("Промокод уже применен, скидка не действует");
-        }
+        return appliedCode != null ? appliedCode.getDiscount() : 0;
     }
 }

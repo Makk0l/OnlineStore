@@ -3,17 +3,20 @@ package services;
 import models.Cart;
 import models.CartItem;
 import models.Product;
+import models.PromoCode;
+import repositories.PromoCodeRepository;
 
 import java.util.List;
 
 public class StoreService {
     private final List<Product> catalog;
     private final Cart cart;
-    private PromoCodeService promoCodeService = new PromoCodeService();
+    private final PromoCodeService promoCodeService;
 
-    public StoreService(List<Product> catalog) {
+    public StoreService(List<Product> catalog, PromoCodeRepository promoCodeRepository) {
         this.catalog = catalog;
         this.cart = new Cart();
+        promoCodeService = new PromoCodeService(promoCodeRepository);
     }
 
     public void showCatalog() {
@@ -33,25 +36,29 @@ public class StoreService {
         System.out.println("Товар не найден: " + name);
     }
 
-    public void applyDiscount(double percent) {
-        if (percent < 0 || percent > 100) {
-            System.out.println("Скидка не может быть меньше нуля или больше 100");
+    public void applyManualDiscount(double percent) {
+        if (cart.isPromoCodeApplied() || cart.isDiscount()) {
+            System.out.println("Сначала удалите текущую скидку или промокод.");
+            return;
         }
-        cart.setDiscount(percent);
+        double valid = Math.min(percent, 100);
+        cart.applyPromo(new PromoCode("MANUAL", valid));
+        System.out.println("Скидка в " + valid + "% применена");
     }
 
-    public void printCart() {
-        for (CartItem item : cart.getItems()) {
-            System.out.println(item.getProduct().name() + " x" + item.getQuantity() + " = " + item.getTotalPrice());
+
+    public void applyPromoCode(String promo) {
+        PromoCode promoCode = promoCodeService.validate(promo);
+        if (promoCode != null && !cart.isPromoCodeApplied()) {
+            cart.applyPromo(promoCode);
+            System.out.println("Промокод применен");
+        } else {
+            System.out.println("Промокод недействителен");
         }
-        System.out.println("Итого со скидкой: " + calculateTotal());
     }
-    public void applyPromoCode(String promo){
-        Double discount = promoCodeService.validate(promo);
-        if (discount != null){
-            cart.applyPromo(discount);
-            System.out.println("Промокод " + discount + " применен");
-        }
+
+    public List<CartItem> getCartItems() {
+        return cart.getItems();
     }
 
     public double calculateTotal() {
@@ -60,6 +67,6 @@ public class StoreService {
             total += item.getTotalPrice();
         }
         double discountAmount = total * cart.getDiscountPercent() / 100;
-        return total - discountAmount;
+        return Math.max(0, total - discountAmount);
     }
 }
